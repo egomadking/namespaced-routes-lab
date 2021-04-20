@@ -1,4 +1,7 @@
 class ArtistsController < ApplicationController
+
+  before_action :artist_create_permitted, only: [:new, :edit]
+
   def index
     @artists = Artist.all
   end
@@ -8,7 +11,11 @@ class ArtistsController < ApplicationController
   end
 
   def new
-    @artist = Artist.new
+    if @permitted
+      @artist = Artist.new
+    else
+      redirect_to artists_path, alert: "Action forbidden"
+    end
   end
 
   def create
@@ -48,5 +55,9 @@ class ArtistsController < ApplicationController
 
   def artist_params
     params.require(:artist).permit(:name)
+  end
+
+  def artist_create_permitted
+    @permitted = Preference.first.allow_create_artists
   end
 end
